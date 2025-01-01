@@ -51,30 +51,37 @@ def calculate_dii_score(nutrient_data, quantity):
         for nutrient in nutrient_data:
             nutrient_name = nutrient.get("nutrientName")
             amount_per_100g = nutrient.get("value", 0)
+            nutrient_unit = nutrient.get("unitName", "").lower()  # Convert to lowercase
 
-            # Query the DII score per unit for the nutrient
+            # Query the DII score per unit and unit from the dii_parameter table
             cursor.execute(""" 
-                SELECT dii_score_per_unit FROM dii_parameter 
+                SELECT dii_score_per_unit, unit FROM dii_parameter 
                 WHERE nutrient_name = ?
             """, (nutrient_name,))
             result = cursor.fetchone()
 
             if result:
-                dii_score_per_unit = result[0]
-                # Adjust the amount based on the user's input quantity
-                adjusted_amount = (amount_per_100g / 100) * quantity
-                nutrient_dii_score = adjusted_amount * dii_score_per_unit
-                
-                total_dii_score += nutrient_dii_score
+                dii_score_per_unit, db_unit = result
+                db_unit = db_unit.lower()  # Convert to lowercase for case-insensitive comparison
 
-                # Add the breakdown for this nutrient
-                breakdown.append({
-                    "nutrient_name": nutrient_name,
-                    "amount_per_100g": amount_per_100g,
-                    "adjusted_amount": adjusted_amount,
-                    "dii_score_per_unit": dii_score_per_unit,
-                    "nutrient_dii_score": nutrient_dii_score
-                })
+                # Compare units before proceeding with the calculation
+                if nutrient_unit == db_unit:
+                    # Adjust the amount based on the user's input quantity
+                    adjusted_amount = (amount_per_100g / 100) * quantity
+                    nutrient_dii_score = adjusted_amount * dii_score_per_unit
+                    
+                    total_dii_score += nutrient_dii_score
+
+                    # Add the breakdown for this nutrient
+                    breakdown.append({
+                        "nutrient_name": nutrient_name,
+                        "amount_per_100g": amount_per_100g,
+                        "adjusted_amount": adjusted_amount,
+                        "dii_score_per_unit": dii_score_per_unit,
+                        "nutrient_dii_score": nutrient_dii_score
+                    })
+                else:
+                    print(f"Skipping nutrient {nutrient_name} due to unit mismatch (USDA: {nutrient_unit}, DB: {db_unit})")
 
         return total_dii_score, breakdown
 
