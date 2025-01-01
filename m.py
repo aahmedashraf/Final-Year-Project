@@ -5,20 +5,19 @@ import os
 db_path = os.path.join(os.path.dirname(__file__), 'dii_tool.db')
 
 # Function to add data to the DIIParameter table
-def add_dii_parameter(nutrient_name, dii_score_per_unit):
+def add_dii_parameter(nutrient_name, dii_score_per_unit, unit):
     try:
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        # Insert new record into DIIParameter (using the correct table name)
+        # Insert new record into DIIParameter with the unit
         cursor.execute("""
-            INSERT INTO dii_parameter (nutrient_name, dii_score_per_unit)
-            VALUES (?, ?)
-        """, (nutrient_name, dii_score_per_unit))
+            INSERT INTO dii_parameter (nutrient_name, dii_score_per_unit, unit)
+            VALUES (?, ?, ?)
+        """, (nutrient_name, dii_score_per_unit, unit))
 
-        # Commit the transaction
         conn.commit()
-        print(f"Added {nutrient_name} with DII score {dii_score_per_unit}.")
+        print(f"Added {nutrient_name} with DII score {dii_score_per_unit} and unit {unit}.")
 
     except sqlite3.Error as e:
         print(f"SQLite error: {e}")
@@ -27,54 +26,88 @@ def add_dii_parameter(nutrient_name, dii_score_per_unit):
         conn.close()
 
 
+# Function to delete all DII parameters
+def delete_all_dii_parameters():
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        # Delete all records from DIIParameter table
+        cursor.execute("DELETE FROM dii_parameter")
+
+        # Commit the transaction
+        conn.commit()
+        print(f"All records deleted from the dii_parameter table.")
+
+    except sqlite3.Error as e:
+        print(f"SQLite error: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+
 # Function to populate data to the DIIParameter table
 def populate_dii_parameters():
     dii_parameters = [
-        {"nutrient_name": "Alcohol", "dii_score_per_unit": -0.278},
-    {"nutrient_name": "Vitamin B12", "dii_score_per_unit": -0.106},
-    {"nutrient_name": "Vitamin B6", "dii_score_per_unit": -0.365},
-    {"nutrient_name": "Beta-Carotene", "dii_score_per_unit": -0.584},
-    {"nutrient_name": "Caffeine", "dii_score_per_unit": 0.085},
-    {"nutrient_name": "Carbohydrate", "dii_score_per_unit": 0.097},
-    {"nutrient_name": "Cholesterol", "dii_score_per_unit": -0.037},
-    {"nutrient_name": "Energy", "dii_score_per_unit": -0.180},
-    {"nutrient_name": "Eugenol", "dii_score_per_unit": -0.868},
-    {"nutrient_name": "Total Fat", "dii_score_per_unit": 0.298},
-    {"nutrient_name": "Fibre", "dii_score_per_unit": -0.663},
-    {"nutrient_name": "Folic Acid", "dii_score_per_unit": -0.182},
-    {"nutrient_name": "Garlic", "dii_score_per_unit": -0.743},
-    {"nutrient_name": "Ginger", "dii_score_per_unit": -0.453},
-    {"nutrient_name": "Iron (Fe)", "dii_score_per_unit": -0.032},
-    {"nutrient_name": "Magnesium (Mg)", "dii_score_per_unit": -0.484},
-    {"nutrient_name": "MUFA", "dii_score_per_unit": 0.021},
+        {"nutrient_name": "Alcohol, ethyl", "dii_score_per_unit": -0.278},
+    {"nutrient_name": "Vitamin B-12", "dii_score_per_unit": 0.106},
+    {"nutrient_name": "Vitamin B-12, added", "dii_score_per_unit": 0.106},
+    {"nutrient_name": "Vitamin B-12, intrinsic", "dii_score_per_unit": 0.106},
+    {"nutrient_name": "Vitamin B-6", "dii_score_per_unit": -0.365},
+    {"nutrient_name": "Vitamin B-6, pyridoxine, alcohol form", "dii_score_per_unit": -0.365},
+    {"nutrient_name": "Vitamin B-6, pyridoxal, aldehyde form", "dii_score_per_unit": -0.365},
+    {"nutrient_name": "Vitamin B-6, pyridoxamine, amine form", "dii_score_per_unit": -0.365},
+    {"nutrient_name": "Vitamin B-6, N411 + N412 +N413", "dii_score_per_unit": -0.365},
+    {"nutrient_name": "Carotene, beta", "dii_score_per_unit": -0.584},
+    {"nutrient_name": "Caffeine", "dii_score_per_unit": -0.110},
+    {"nutrient_name": "Carbohydrate, by difference", "dii_score_per_unit": 0.097},
+    {"nutrient_name": "Carbohydrate, by summation", "dii_score_per_unit": 0.097},
+    {"nutrient_name": "Carbohydrate, other", "dii_score_per_unit": 0.097},
+    {"nutrient_name": "Carbohydrates, other", "dii_score_per_unit": 0.097},
+    {"nutrient_name": "Cholesterol", "dii_score_per_unit": 0.110},
+    {"nutrient_name": "Energy (Atwater General Factors)", "dii_score_per_unit": 0.180},
+    {"nutrient_name": "Energy (Atwater Specific Factors)", "dii_score_per_unit": 0.180},
+    {"nutrient_name": "Energy", "dii_score_per_unit": 0.180},
+    # {"nutrient_name": "Eugenol", "dii_score_per_unit": -0.868},
+    {"nutrient_name": "Total lipid (fat)", "dii_score_per_unit": 0.298},
+    {"nutrient_name": "Fiber, total dietary", "dii_score_per_unit": -0.663},
+    {"nutrient_name": "Folic acid", "dii_score_per_unit": -0.190},
+    # {"nutrient_name": "Garlic", "dii_score_per_unit": -0.743},
+    # {"nutrient_name": "Ginger", "dii_score_per_unit": -0.453},
+    {"nutrient_name": "Iron, Fe", "dii_score_per_unit": 0.032},
+    {"nutrient_name": "Magnesium, Mg", "dii_score_per_unit": -0.484},
+    {"nutrient_name": "Fatty acids, total monounsaturated", "dii_score_per_unit": -0.009},
     {"nutrient_name": "Niacin", "dii_score_per_unit": -0.246},
-    {"nutrient_name": "Omega-3 Fatty Acids", "dii_score_per_unit": -0.436},
-    {"nutrient_name": "Omega-6 Fatty Acids", "dii_score_per_unit": -0.159},
-    {"nutrient_name": "Onion", "dii_score_per_unit": -0.509},
+    # {"nutrient_name": "Omega-3 Fatty Acids", "dii_score_per_unit": -0.436},
+    # {"nutrient_name": "Omega-6 Fatty Acids", "dii_score_per_unit": -0.159},
+    # {"nutrient_name": "Onion", "dii_score_per_unit": -0.509},
     {"nutrient_name": "Protein", "dii_score_per_unit": 0.021},
-    {"nutrient_name": "PUFA", "dii_score_per_unit": -0.237},
-    {"nutrient_name": "Riboflavin", "dii_score_per_unit": -0.727},
-    {"nutrient_name": "Saffron", "dii_score_per_unit": -0.168},
-    {"nutrient_name": "Saturated Fat", "dii_score_per_unit": 0.429},
-    {"nutrient_name": "Selenium (Se)", "dii_score_per_unit": -0.191},
-    {"nutrient_name": "Thiamin", "dii_score_per_unit": 0.098},
-    {"nutrient_name": "Trans Fat", "dii_score_per_unit": 0.229},
-    {"nutrient_name": "Turmeric", "dii_score_per_unit": -0.785},
-    {"nutrient_name": "Vitamin A", "dii_score_per_unit": -0.401},
-    {"nutrient_name": "Vitamin C", "dii_score_per_unit": -0.424},
-    {"nutrient_name": "Vitamin D", "dii_score_per_unit": -0.446},
-    {"nutrient_name": "Vitamin E", "dii_score_per_unit": -0.536},
-    {"nutrient_name": "Zinc (Zn)", "dii_score_per_unit": -0.313},
-    {"nutrient_name": "Green/Black Tea", "dii_score_per_unit": -0.536},
-    {"nutrient_name": "Flavan-3-ol", "dii_score_per_unit": -0.615},
-    {"nutrient_name": "Flavones", "dii_score_per_unit": -0.616},
-    {"nutrient_name": "Flavonols", "dii_score_per_unit": -0.467},
-    {"nutrient_name": "Flavanones", "dii_score_per_unit": -0.508},
-    {"nutrient_name": "Anthocyanidins", "dii_score_per_unit": -0.449},
+    # {"nutrient_name": "PUFA", "dii_score_per_unit": -0.237},
+    {"nutrient_name": "Riboflavin", "dii_score_per_unit": -0.068},
+    {"nutrient_name": "Riboflavin, added", "dii_score_per_unit": -0.068},
+    {"nutrient_name": "Riboflavin, intrinsic", "dii_score_per_unit": -0.068},
+    # {"nutrient_name": "Saffron", "dii_score_per_unit": -0.140},
+    # {"nutrient_name": "Saturated Fat", "dii_score_per_unit": 0.429},
+    {"nutrient_name": "Selenium, Se", "dii_score_per_unit": -0.191},
+    {"nutrient_name": "Thiamin", "dii_score_per_unit": -0.098},
+    {"nutrient_name": "Thiamin, added", "dii_score_per_unit": -0.098},
+    {"nutrient_name": "Thiamin, intrinsic", "dii_score_per_unit": -0.098},
+    # {"nutrient_name": "Trans Fat", "dii_score_per_unit": 0.229},
+    # {"nutrient_name": "Turmeric", "dii_score_per_unit": -0.785},
+    {"nutrient_name": "Vitamin A, RE", "dii_score_per_unit": -0.401},
+    {"nutrient_name": "Vitamin C, total ascorbic acid", "dii_score_per_unit": -0.424},
+    {"nutrient_name": "Vitamin D (D2 + D3)", "dii_score_per_unit": -0.446},
+    {"nutrient_name": "Vitamin E", "dii_score_per_unit": -0.419},
+    {"nutrient_name": "Zinc, Zn", "dii_score_per_unit": -0.313},
+    # {"nutrient_name": "Green/Black Tea", "dii_score_per_unit": -0.536},
+    # {"nutrient_name": "Flavan-3-ol", "dii_score_per_unit": -0.615},
+    {"nutrient_name": "Flavones, total", "dii_score_per_unit": -0.616},
+    {"nutrient_name": "Flavonols, total", "dii_score_per_unit": -0.467},
+    {"nutrient_name": "Flavanones, total", "dii_score_per_unit": -0.250},
+    {"nutrient_name": "Anthocyanidins", "dii_score_per_unit": -0.131},
     {"nutrient_name": "Isoflavones", "dii_score_per_unit": -0.593},
-    {"nutrient_name": "Pepper", "dii_score_per_unit": -0.397},
-    {"nutrient_name": "Thyme/Oregano", "dii_score_per_unit": -0.102},
-    {"nutrient_name": "Rosemary", "dii_score_per_unit": -0.013},
+    # {"nutrient_name": "Pepper", "dii_score_per_unit": -0.397},
+    # {"nutrient_name": "Thyme/Oregano", "dii_score_per_unit": -0.102},
+    # {"nutrient_name": "Rosemary", "dii_score_per_unit": -0.013},
         
         # Add other nutrients with their respective DII scores
     ]
@@ -85,9 +118,9 @@ def populate_dii_parameters():
 
         for param in dii_parameters:
             cursor.execute("""
-                INSERT OR IGNORE INTO dii_parameter (nutrient_name, dii_score_per_unit)
-                VALUES (?, ?)
-            """, (param["nutrient_name"], param["dii_score_per_unit"]))
+                INSERT OR IGNORE INTO dii_parameter (nutrient_name, dii_score_per_unit, unit)
+                VALUES (?, ?, ?)
+            """, (param["nutrient_name"], param["dii_score_per_unit"], param["unit"]))
 
         conn.commit()
         print("DII parameters populated successfully!")
@@ -97,7 +130,7 @@ def populate_dii_parameters():
     finally:
         cursor.close()
         conn.close()
-
+        
 # Function to query all DII parameters
 # def query_all_dii_parameters():
 #     try:
@@ -146,8 +179,8 @@ def delete_dii_parameter(nutrient_name):
 # Uncomment to test the function
 # delete_dii_parameter('Vitamin B-12')
 
-# if __name__ == "__main__":
-#     populate_dii_parameters()
+if __name__ == "__main__":
+    populate_dii_parameters()
 
     # Example usage
     # Add a new DII Parameter (you can call this function wherever needed)

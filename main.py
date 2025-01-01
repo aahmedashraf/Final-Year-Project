@@ -1,112 +1,132 @@
-import sqlite3, requests
 from flask import Flask, request, jsonify, render_template
-from flask_sqlalchemy import SQLAlchemy
+import sqlite3
 import os
-# from db import log_food_entry  
-from models import db, FoodLog  
-
+import requests
 
 app = Flask(__name__)
 
-# Set up the database URI
-db_path = r'C:\Users\aahme\OneDrive\Documents\GitHub\Final-Year-Project\dii_tool.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Path to your SQLite database
+db_path = os.path.join(os.path.dirname(__file__), 'dii_tool.db')
 
-# Initialize SQLAlchemy
-db.init_app(app)
-db_path = r'C:\Users\aahme\OneDrive\Documents\GitHub\Final-Year-Project\dii_tool.db'
+# USDA API configuration
+USDA_API_URL = "https://api.nal.usda.gov/fdc/v1/foods/search"
+USDA_API_KEY = "sns0HxXgofxkqaeFcYRUpPzxcxoN7wy62Mf2Aq85"  # Replace with your USDA API key
 
-# Your USDA API key
-API_KEY = "sns0HxXgofxkqaeFcYRUpPzxcxoN7wy62Mf2Aq85"
-BASE_URL = "https://api.nal.usda.gov/fdc/v1/foods/search"
-
-
-# Function to fetch nutrient data from USDA API
-def fetch_usda_data(ingredient):
-    params = {
-        "query": ingredient,
-        "pageSize": 1,  # Limit results to the first match
-        "api_key": API_KEY
-    }
-    response = requests.get(BASE_URL, params=params)
-
-    if response.status_code == 200:
+def fetch_nutrient_data(food_name):
+    """
+    Fetch nutrient data for a food item using the USDA API.
+    """
+    try:
+        params = {
+            "query": food_name,
+            "pageSize": 1,
+            "api_key": USDA_API_KEY
+        }
+        response = requests.get(USDA_API_URL, params=params)
+        response.raise_for_status()
         data = response.json()
+
+        # Extract nutrient data from the first result
         if "foods" in data and len(data["foods"]) > 0:
-            return data["foods"][0].get("foodNutrients", [])
+            return data["foods"][0]["foodNutrients"]
         else:
-            print("No food data found for the ingredient.")
-            return None
-    else:
-        print(f"API error: {response.status_code} - {response.text}")
+            return None  # No nutrient data found
+
+    except requests.RequestException as e:
+        print(f"Error fetching nutrient data: {e}")
         return None
 
-# Function to calculate the DII score based on nutrient data
-def calculate_dii_score(nutrients):
-    total_score = 0
+def calculate_dii_score(nutrient_data, quantity):
+    """
+    Calculate the total DII score for a food item based on nutrient data and quantity.
+    Provides a detailed breakdown of the score calculation.
+    """
     try:
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        for nutrient in nutrients:
-            name = nutrient.get("nutrientName", "")
-            amount = nutrient.get("value", 0)
+        total_dii_score = 0
+        breakdown = []  # To store the breakdown for each nutrient
 
-            # Query for the DII score from the dii_parameter table
-            cursor.execute("SELECT dii_score_per_unit FROM dii_parameter WHERE nutrient_name = ?", (name,))
-            row = cursor.fetchone()
+        for nutrient in nutrient_data:
+            nutrient_name = nutrient.get("nutrientName")
+            amount_per_100g = nutrient.get("value", 0)
 
-            if row:
-                dii_score_per_unit = row[0]
-                score = amount * dii_score_per_unit
-                total_score += score
-            
-        conn.commit()
+            # Query the DII score per unit for the nutrient
+            cursor.execute(""" 
+                SELECT dii_score_per_unit FROM dii_parameter 
+                WHERE nutrient_name = ?
+            """, (nutrient_name,))
+            result = cursor.fetchone()
+
+            if result:
+                dii_score_per_unit = result[0]
+                # Adjust the amount based on the user's input quantity
+                adjusted_amount = (amount_per_100g / 100) * quantity
+                nutrient_dii_score = adjusted_amount * dii_score_per_unit
+                
+                total_dii_score += nutrient_dii_score
+
+                # Add the breakdown for this nutrient
+                breakdown.append({
+                    "nutrient_name": nutrient_name,
+                    "amount_per_100g": amount_per_100g,
+                    "adjusted_amount": adjusted_amount,
+                    "dii_score_per_unit": dii_score_per_unit,
+                    "nutrient_dii_score": nutrient_dii_score
+                })
+
+        return total_dii_score, breakdown
+
     except sqlite3.Error as e:
         print(f"SQLite error: {e}")
+        return None, None
     finally:
         cursor.close()
         conn.close()
 
-    return total_score
 
-
-def log_food_entry(ingredient_name, quantity, dii_score):
-    food_log_entry = FoodLog(ingredient_name=ingredient_name, quantity=quantity, dii_score=dii_score)
-    db.session.add(food_log_entry)
-    db.session.commit()
-    print(f"Logged food entry: {ingredient_name}, Quantity: {quantity}, DII Score: {dii_score}")
-
-# Flask route for the home page
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# Flask route to handle DII calculation
-@app.route('/calculate_dii', methods=['POST'])
-def calculate_dii():
-    ingredient = request.json.get("ingredient")
-    if not ingredient:
-        return jsonify({"error": "No ingredient provided"}), 400
 
-    nutrients = fetch_usda_data(ingredient)
-    if nutrients:
-        dii_score = calculate_dii_score(nutrients)
-        return jsonify({"ingredient": ingredient, "dii_score": dii_score})
+@app.route('/calculate', methods=['POST'])
+def calculate():
+    """
+    API endpoint to calculate the DII score based on user input.
+    Returns a detailed breakdown of the score calculation.
+    """
+    data = request.json
+    food_name = data.get('food_name')
+    quantity = data.get('quantity')
+
+    if not food_name or not quantity:
+        return jsonify({"error": "Food name and quantity are required."}), 400
+
+    try:
+        quantity = float(quantity)  # Ensure quantity is numeric
+    except ValueError:
+        return jsonify({"error": "Invalid quantity value. It must be numeric."}), 400
+
+    # Fetch nutrient data from the USDA API
+    nutrient_data = fetch_nutrient_data(food_name)
+
+    if not nutrient_data:
+        return jsonify({"error": f"Nutrient data for '{food_name}' not found."}), 404
+
+    # Calculate the DII score and get the breakdown
+    total_dii_score, breakdown = calculate_dii_score(nutrient_data, quantity)
+
+    if total_dii_score is not None:
+        return jsonify({
+            "food_name": food_name,
+            "quantity": quantity,
+            "dii_score": total_dii_score,
+            "breakdown": breakdown  # Add the breakdown to the response
+        })
     else:
-        return jsonify({"error": "Nutrient data not found"}), 404
+        return jsonify({"error": "Error calculating DII score."}), 500
 
-@app.route('/test_fetch', methods=['GET'])
-def test_fetch():
-    ingredient = request.args.get("ingredient", "apple")  # Default ingredient is "apple"
-    nutrients = fetch_usda_data(ingredient)
-    
-    if nutrients:
-        return jsonify({"ingredient": ingredient, "nutrients": nutrients})
-    else:
-        return jsonify({"error": "Nutrient data not found"}), 404
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
-

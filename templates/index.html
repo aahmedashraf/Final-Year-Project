@@ -3,10 +3,55 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DII Tool</title>
+    <title>DII Inflammation Tracker</title>
+    <link rel="stylesheet" href="static/styles.css" />
   </head>
   <body>
-    <h1>Welcome to the Dietary Inflammatory Index Tool</h1>
-    <p>This is a test page for Flask routing.</p>
+    <div class="container">
+      <header>
+        <h1>DII Inflammation Tracker</h1>
+      </header>
+
+      <main>
+        <!-- Food Search Section -->
+        <div class="search-section">
+          <input id="foodSearch" type="text" placeholder="Search for food..." />
+          <input
+            id="foodQuantity"
+            type="number"
+            placeholder="Quantity (g)"
+            min="1"
+          />
+          <button id="addFoodBtn">Add to Diary</button>
+        </div>
+
+        <!-- Inflammation Score Section -->
+        <div class="score-display">
+          <h2>Inflammation Score</h2>
+          <div class="circle">
+            <span id="scoreText">0</span>
+          </div>
+        </div>
+
+        <!-- Food Diary Section -->
+        <div class="food-diary">
+          <h2>Food Diary</h2>
+          <table id="diaryTable">
+            <thead>
+              <tr>
+                <th>Food</th>
+                <th>Quantity (g)</th>
+                <th>Inflammation Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Rows will be added dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+
+    <script src="static/script.js"></script>
   </body>
 </html>
