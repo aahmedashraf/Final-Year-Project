@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Diary</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Food Diary</h1>
     <ul>
-        {% for entry in diary_entries %}
-        <li>{{ entry.name }} - Portion: {{ entry.portion_size }}g, DII Contribution: {{ entry.dii_contribution }}</li>
-        {% endfor %}
+      {% for entry in diary_entries %}
+      <li>
+        {{ entry.name }} - Portion: {{ entry.portion_size }}g, DII Contribution:
+        {{ entry.dii_contribution }}
+      </li>
+      {% endfor %}
     </ul>
     <h2>Total DII Score: {{ total_dii }}</h2>
-</body>
+  </body>
 </html>

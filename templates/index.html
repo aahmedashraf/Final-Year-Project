@@ -5,38 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DII Inflammation Tracker</title>
     <link rel="stylesheet" href="static/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
     <div class="container">
-      <header>
+      <header class="header">
         <h1>DII Inflammation Tracker</h1>
+        <p>
+          Track your diet's inflammation potential. Negative scores indicate an
+          anti-inflammatory diet, while positive scores indicate a
+          pro-inflammatory diet.
+        </p>
       </header>
 
-      <main>
+      <main class="main-content">
         <!-- Food Search Section -->
-        <div class="search-section">
-          <input id="foodSearch" type="text" placeholder="Search for food..." />
-          <input
-            id="foodQuantity"
-            type="number"
-            placeholder="Quantity (g)"
-            min="1"
-          />
-          <button id="addFoodBtn">Add to Diary</button>
-        </div>
+        <section class="search-section">
+          <h2>Log Your Meals</h2>
+          <div class="search-container">
+            <input
+              id="foodSearch"
+              type="text"
+              placeholder="Search for food..."
+            />
+            <input
+              id="foodQuantity"
+              type="number"
+              placeholder="Quantity (g)"
+              min="1"
+            />
+            <button id="addFoodBtn">Add to Diary</button>
+          </div>
+        </section>
 
-        <!-- Inflammation Score Section -->
-        <div class="score-display">
-          <h2>Inflammation Score</h2>
-          <div class="circle">
+        <!-- Score Section -->
+        <section class="score-section">
+          <h2>Overall Inflammation Score</h2>
+          <div class="score-circle">
             <span id="scoreText">0</span>
           </div>
-        </div>
+        </section>
 
         <!-- Food Diary Section -->
-        <div class="food-diary">
+        <section class="diary-section">
           <h2>Food Diary</h2>
-          <table id="diaryTable">
+          <table id="diaryTable" class="diary-table">
             <thead>
               <tr>
                 <th>Food</th>
@@ -45,13 +58,22 @@
               </tr>
             </thead>
             <tbody>
-              <!-- Rows will be added dynamically -->
+              <!-- Dynamically added rows -->
             </tbody>
           </table>
-        </div>
-      </main>
-    </div>
+        </section>
 
+        <!-- Inflammation Score Trend Section -->
+        <section class="graph-section">
+          <h2>Inflammation Score Trend</h2>
+          <canvas id="scoreChart"></canvas>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <p>Empower your dietary choices with data-driven insights.</p>
+      </footer>
+    </div>
     <script src="static/script.js"></script>
   </body>
 </html>

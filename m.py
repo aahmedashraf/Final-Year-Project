@@ -1,8 +1,7 @@
 import sqlite3
 import os
 
-# Path to your SQLite database
-db_path = os.path.join(os.path.dirname(__file__), 'dii_tool.db')
+db_path = r'C:\Users\aahme\OneDrive\Documents\GitHub\Final-Year-Project\instance\dii_tool.db'
 
 # Function to add data to the DIIParameter table
 def add_dii_parameter(nutrient_name, dii_score_per_unit, unit):
@@ -65,8 +64,8 @@ def populate_dii_parameters():
     {"nutrient_name": "Carbohydrates, other", "dii_score_per_unit": 0.097,  "unit": "g"},
     {"nutrient_name": "Cholesterol", "dii_score_per_unit": 0.110,  "unit": "mg"},
     {"nutrient_name": "Energy (Atwater General Factors)", "dii_score_per_unit": 0.180,  "unit": "kcal"},
-    {"nutrient_name": "Energy (Atwater Specific Factors)", "dii_score_per_unit": 0.180,  "unit": "kcal"},
-    {"nutrient_name": "Energy", "dii_score_per_unit": 0.180,  "unit": "kcal"},
+    # {"nutrient_name": "Energy (Atwater Specific Factors)", "dii_score_per_unit": 0.180,  "unit": "kcal"},
+    # {"nutrient_name": "Energy", "dii_score_per_unit": 0.180,  "unit": "kcal"},
     # {"nutrient_name": "Eugenol", "dii_score_per_unit": -0.868,  "unit": "mg"},
     {"nutrient_name": "Total lipid (fat)", "dii_score_per_unit": 0.298,  "unit": "g"},
     {"nutrient_name": "Fiber, total dietary", "dii_score_per_unit": -0.663,  "unit": "g"},
@@ -139,7 +138,7 @@ def populate_dii_parameters():
 
 #         # Query the DIIParameter table (using the correct table name)
 #         cursor.execute("SELECT * FROM dii_parameter")
-#         rows = cursor.fetchall()
+#         rows = cursor.fetchall(s)
 
 #         for row in rows:
 #             print(row)
@@ -180,7 +179,8 @@ def delete_dii_parameter(nutrient_name):
 # delete_dii_parameter('Vitamin B-12')
 
 if __name__ == "__main__":
-     populate_dii_parameters()
+    # delete_all_dii_parameters()
+    populate_dii_parameters()
 
     # Example usage
     # Add a new DII Parameter (you can call this function wherever needed)
