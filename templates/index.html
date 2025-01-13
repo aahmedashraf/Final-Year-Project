@@ -22,19 +22,31 @@
         <!-- Food Search Section -->
         <section class="search-section">
           <h2>Log Your Meals</h2>
+          <p>
+            Search for foods using the USDA FoodData Central database. Only
+            available items can be added to your diary.
+            <a
+              href="https://fdc.nal.usda.gov/food-search?type=Foundation&query="
+              target="_blank"
+            >
+              Learn more
+            </a>
+          </p>
           <div class="search-container">
             <input
               id="foodSearch"
               type="text"
               placeholder="Search for food..."
+              autocomplete="off"
             />
+            <ul id="foodSuggestions" class="suggestions-list"></ul>
             <input
               id="foodQuantity"
               type="number"
               placeholder="Quantity (g)"
               min="1"
             />
-            <button id="addFoodBtn">Add to Diary</button>
+            <button id="addFoodBtn" disabled>Add to Diary</button>
           </div>
         </section>
 

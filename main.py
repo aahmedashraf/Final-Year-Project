@@ -102,12 +102,12 @@ def index():
 def calculate():
     """
     API endpoint to calculate the DII score based on user input.
-    Returns a detailed breakdown of the score calculation.
     """
     data = request.json
     food_name = data.get('food_name')
     quantity = data.get('quantity')
 
+    # Input validation
     if not food_name or not quantity:
         return jsonify({"error": "Food name and quantity are required."}), 400
 
@@ -116,24 +116,29 @@ def calculate():
     except ValueError:
         return jsonify({"error": "Invalid quantity value. It must be numeric."}), 400
 
+    print(f"Calculating DII score for: {food_name}, Quantity: {quantity}")
+
     # Fetch nutrient data from the USDA API
     nutrient_data = fetch_nutrient_data(food_name)
+    print(f"Nutrient data fetched for '{food_name}': {nutrient_data}")
 
     if not nutrient_data:
         return jsonify({"error": f"Nutrient data for '{food_name}' not found."}), 404
 
-    # Calculate the DII score and get the breakdown
+    # Calculate the DII score
     total_dii_score, breakdown = calculate_dii_score(nutrient_data, quantity)
 
     if total_dii_score is not None:
+        print(f"DII score calculated: {total_dii_score}, Breakdown: {breakdown}")
         return jsonify({
             "food_name": food_name,
             "quantity": quantity,
             "dii_score": total_dii_score,
-            "breakdown": breakdown  # Add the breakdown to the response
+            "breakdown": breakdown
         })
     else:
         return jsonify({"error": "Error calculating DII score."}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)
