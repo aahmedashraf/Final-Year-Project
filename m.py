@@ -178,9 +178,9 @@ def delete_dii_parameter(nutrient_name):
 # Uncomment to test the function
 # delete_dii_parameter('Vitamin B-12')
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     # delete_all_dii_parameters()
-    populate_dii_parameters()
+    # populate_dii_parameters()
 
     # Example usage
     # Add a new DII Parameter (you can call this function wherever needed)

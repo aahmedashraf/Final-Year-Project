@@ -166,12 +166,3 @@ function updateChart() {
   scoreChart.data.datasets[0].data = scoreTrend;
   scoreChart.update();
 }
-
-// Function to calculate inflammation score
-function calculateInflammationScore(nutrients, quantity) {
-  let score = 0;
-  nutrients.forEach((nutrient) => {
-    // Map nutrients to DII parameters and calculate score
-  });
-  return score;
-}
