@@ -127,7 +127,6 @@ async function addFoodToDiary() {
         const foodScore = data.dii_score;
 
         // Add food item to diary table
-        const diaryTable = document.getElementById("diaryTable");
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${data.food_name}</td>
@@ -159,6 +158,25 @@ async function addFoodToDiary() {
 
 function updateScore() {
   scoreText.textContent = totalInflammationScore.toFixed(2);
+  displayInflammationFeedback(totalInflammationScore);
+}
+
+function displayInflammationFeedback(score) {
+  const feedbackMessage = document.getElementById("feedbackMessage");
+
+  if (score < -5) {
+    feedbackMessage.textContent =
+      "Great job! Your diet is anti-inflammatory. Keep up with the fruits, vegetables, and omega-3 rich foods!";
+    feedbackMessage.style.color = "green";
+  } else if (score >= -5 && score <= 5) {
+    feedbackMessage.textContent =
+      "Your diet has a moderate inflammation potential. Consider adding more anti-inflammatory foods like leafy greens and turmeric.";
+    feedbackMessage.style.color = "gray";
+  } else {
+    feedbackMessage.textContent =
+      "Your diet shows a high level of inflammation. Try reducing processed foods and incorporate more omega-3 rich foods and vegetables.";
+    feedbackMessage.style.color = "red";
+  }
 }
 
 function updateChart() {

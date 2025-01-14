@@ -183,3 +183,9 @@ canvas {
   background-color: #f4c430;
   color: #fff;
 }
+
+.feedback-message {
+  margin-top: 10px;
+  font-size: 1.2em;
+  font-weight: bold;
+}
