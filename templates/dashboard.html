@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - DII Inflammation Tracker</title>
+    <link rel="stylesheet" href="static/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1>DII Inflammation Tracker</h1>
+        <p>
+          Track your diet's inflammation potential. Negative scores indicate an
+          anti-inflammatory diet, while positive scores indicate a
+          pro-inflammatory diet.
+        </p>
+      </header>
+
+      <main class="main-content">
+        <!-- Food Search Section -->
+        <section class="search-section">
+          <h2>Log Your Meals</h2>
+          <div class="search-container">
+            <input
+              id="foodSearch"
+              type="text"
+              placeholder="Search for food..."
+              autocomplete="off"
+            />
+            <ul id="foodSuggestions" class="suggestions-list"></ul>
+            <input
+              id="foodQuantity"
+              type="number"
+              placeholder="Quantity (g)"
+              min="1"
+            />
+            <button id="addFoodBtn" disabled>Add to Diary</button>
+          </div>
+        </section>
+
+        <!-- Daily Data Section -->
+        <section class="diary-section">
+          <h2>Today's Food Diary</h2>
+          <table id="diaryTable" class="diary-table">
+            <thead>
+              <tr>
+                <th>Food</th>
+                <th>Quantity (g)</th>
+                <th>Inflammation Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Dynamically added rows -->
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Weekly Trend Section -->
+        <section class="graph-section">
+          <h2>Weekly Inflammation Score Trend</h2>
+          <canvas id="scoreChart"></canvas>
+        </section>
+
+        <!-- Logout Button -->
+        <button id="logoutBtn">Logout</button>
+      </main>
+    </div>
+    <script src="static/dashboard.js"></script>
+  </body>
+</html>

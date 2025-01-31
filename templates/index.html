@@ -19,73 +19,21 @@
       </header>
 
       <main class="main-content">
-        <!-- Food Search Section -->
-        <section class="search-section">
-          <h2>Log Your Meals</h2>
-          <p>
-            Search for foods using the USDA FoodData Central database. Only
-            available items can be added to your diary.
-            <a
-              href="https://fdc.nal.usda.gov/food-search?type=Foundation&query="
-              target="_blank"
-            >
-              Learn more
-            </a>
-          </p>
-          <div class="search-container">
+        <!-- Login Section -->
+        <section class="login-section">
+          <h2>Login</h2>
+          <form id="loginForm">
+            <input type="text" id="username" placeholder="Username" required />
             <input
-              id="foodSearch"
-              type="text"
-              placeholder="Search for food..."
-              autocomplete="off"
+              type="password"
+              id="password"
+              placeholder="Password"
+              required
             />
-            <ul id="foodSuggestions" class="suggestions-list"></ul>
-            <input
-              id="foodQuantity"
-              type="number"
-              placeholder="Quantity (g)"
-              min="1"
-            />
-            <button id="addFoodBtn" disabled>Add to Diary</button>
-          </div>
-        </section>
-
-        <section class="score-section">
-          <h2>Overall Inflammation Score</h2>
-          <div class="score-circle">
-            <span id="scoreText">0</span>
-          </div>
-          <!-- Feedback message -->
-          <div id="feedbackMessage" class="feedback-message"></div>
-        </section>
-
-        <!-- Food Diary Section -->
-        <section class="diary-section">
-          <h2>Food Diary</h2>
-          <table id="diaryTable" class="diary-table">
-            <thead>
-              <tr>
-                <th>Food</th>
-                <th>Quantity (g)</th>
-                <th>Inflammation Score</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Dynamically added rows -->
-            </tbody>
-          </table>
-        </section>
-
-        <!-- Inflammation Score Trend Section -->
-        <section class="graph-section">
-          <h2>Inflammation Score Trend</h2>
-          <canvas id="scoreChart"></canvas>
+            <button type="submit">Login</button>
+          </form>
         </section>
       </main>
-
-      <footer class="footer">
-        <p>Empower your dietary choices with data-driven insights.</p>
-      </footer>
     </div>
     <script src="static/script.js"></script>
   </body>
