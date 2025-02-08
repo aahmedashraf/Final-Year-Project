@@ -4,7 +4,7 @@ import os
 import requests
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
-from dotenv import load_dotenv  
+# from dotenv import load_dotenv  
 
 # load_dotenv()  # Load environment variables
 
