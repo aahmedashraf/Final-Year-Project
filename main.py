@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv  
 
-load_dotenv()  # Load environment variables
+# load_dotenv()  # Load environment variables
 
 app = Flask(__name__)
 app.secret_key = "4f5f6d7e8a9b0c1d2e3f4a5b6c7d8e9f"
