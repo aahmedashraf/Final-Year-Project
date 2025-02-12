@@ -36,10 +36,19 @@ def init_db():
                 total_dii_score REAL DEFAULT 0,
                 FOREIGN KEY(user_id) REFERENCES users(id)
             );
+            CREATE TABLE IF NOT EXISTS food_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                date TEXT NOT NULL,
+                food_name TEXT NOT NULL,
+                quantity REAL NOT NULL,
+                dii_score REAL NOT NULL,
+                FOREIGN KEY(user_id) REFERENCES users(id)
+            );
         """)
         conn.commit()
 
-# Initialize the database
+# Uncomment to initialize the database
 # init_db()
 
 def fetch_nutrient_data(food_name):
@@ -136,6 +145,48 @@ def update_daily_score(user_id, score):
         conn.commit()
 
 # --- Routes ---
+@app.route('/delete_entry/<int:entry_id>', methods=['DELETE'])
+def delete_entry(entry_id):
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        # Get the entry to be deleted
+        cursor.execute("""
+            SELECT date, dii_score FROM food_log
+            WHERE id = ? AND user_id = ?
+        """, (entry_id, session['user_id']))
+        entry = cursor.fetchone()
+        
+        if not entry:
+            return jsonify({"error": "Entry not found"}), 404
+
+        # Delete the entry
+        cursor.execute("""
+            DELETE FROM food_log
+            WHERE id = ? AND user_id = ?
+        """, (entry_id, session['user_id']))
+        
+        # Update daily total
+        cursor.execute("""
+            UPDATE daily_data
+            SET total_dii_score = total_dii_score - ?
+            WHERE user_id = ? AND date = ?
+        """, (entry[1], session['user_id'], entry[0]))
+        
+        conn.commit()
+        return jsonify({"success": True})
+        
+    except sqlite3.Error as e:
+        conn.rollback()
+        print(f"Database error: {e}")
+        return jsonify({"error": "Database error"}), 500
+    finally:
+        conn.close()
+
 @app.route('/')
 def index():
     if 'user_id' in session:
@@ -216,6 +267,7 @@ def calculate():
 
     # Fetch nutrient data
     nutrient_data = fetch_nutrient_data(food_name)
+    print(nutrient_data)
     if not nutrient_data:
         return jsonify({"error": f"Nutrient data for '{food_name}' not found"}), 404
 
@@ -260,8 +312,6 @@ def calculate():
         "breakdown": breakdown
     })
 
-# from werkzeug.security import generate_password_hash
-# print(generate_password_hash('123123'))
 @app.route('/usda-proxy')
 def usda_proxy():
     query = request.args.get('query')
@@ -293,8 +343,9 @@ def daily_data():
     try:
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
+        # Include the id field so we can reference it for deletion
         cursor.execute("""
-            SELECT food_name, quantity, dii_score 
+            SELECT id, food_name, quantity, dii_score 
             FROM food_log 
             WHERE user_id = ? AND date = ?
         """, (user_id, today))
@@ -305,7 +356,6 @@ def daily_data():
     except sqlite3.Error as e:
         print(f"Database error: {e}")
         return jsonify({"error": "Database error"}), 500
-
 
 @app.route('/weekly_data')
 def weekly_data():

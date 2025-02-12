@@ -55,6 +55,7 @@ body {
   display: flex;
   gap: 15px;
   flex-wrap: wrap;
+  position: relative;
 }
 
 .search-container input {
@@ -79,32 +80,42 @@ body {
   background-color: #eab81f;
 }
 
-/* Score Section */
-.score-section {
+/* Updated Total Score Section */
+.total-score-section {
   background-color: #ffffff;
   border-radius: 8px;
-  padding: 20px;
+  padding: 20px 15px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
+  margin: 10px 0;
 }
 
-.score-section h2 {
+.total-score-section h3 {
+  margin-bottom: 15px;
   color: #2e3a59;
-  margin-bottom: 20px;
 }
 
 .score-circle {
-  width: 120px;
-  height: 120px;
-  margin: 0 auto;
-  background-color: #2e3a59;
-  color: #ffffff;
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 10px;
+  background-color: #f4c430;
+  color: #2e3a59;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.5em;
+  font-size: 2.5em;
+  font-weight: bold;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Feedback Message */
+.feedback-message {
+  font-size: 1.1em;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 4px;
 }
 
 /* Food Diary Section */
@@ -154,24 +165,17 @@ canvas {
   max-width: 100%;
 }
 
-/* Footer */
-.footer {
-  text-align: center;
-  margin-top: 30px;
-  color: #6c7a96;
-  font-size: 0.9em;
-}
-
+/* Suggestions List */
 .suggestions-list {
   list-style: none;
   padding: 0;
   margin: 5px 0 0;
-  border: 1px solid #ddd;
   max-height: 150px;
   overflow-y: auto;
   background-color: #fff;
   position: absolute;
   z-index: 1000;
+  width: 100%;
 }
 
 .suggestions-list li {
@@ -184,12 +188,7 @@ canvas {
   color: #fff;
 }
 
-.feedback-message {
-  margin-top: 10px;
-  font-size: 1.2em;
-  font-weight: bold;
-}
-/* Add to existing styles */
+/* Login Section (if used) */
 .login-section {
   background-color: #ffffff;
   border-radius: 8px;
@@ -220,6 +219,7 @@ canvas {
   cursor: pointer;
 }
 
+/* Logout Button */
 #logoutBtn {
   padding: 10px 20px;
   background-color: #dc3545;
@@ -229,4 +229,19 @@ canvas {
   cursor: pointer;
   float: right;
   margin: 20px 0;
+}
+
+/* Delete Button */
+.delete-btn {
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.delete-btn:hover {
+  background-color: #cc0000;
 }

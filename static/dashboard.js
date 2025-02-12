@@ -1,4 +1,3 @@
-// dashboard.js
 document.addEventListener("DOMContentLoaded", () => {
   // Initialize chart and load data
   initializeChart();
@@ -141,7 +140,53 @@ async function addFoodToDiary() {
   }
 }
 
-// Load Daily Data
+// Update Total Score Function
+function updateTotalScore() {
+  let total = 0;
+  document.querySelectorAll("#diaryTable tbody tr").forEach((row) => {
+    total += parseFloat(row.cells[2].textContent);
+  });
+
+  const totalElement = document.getElementById("totalScore");
+  const feedbackElement = document.getElementById("scoreFeedback");
+
+  totalElement.textContent = total.toFixed(2);
+
+  if (total > 0) {
+    totalElement.style.color = "#ff4444";
+    feedbackElement.textContent =
+      "Pro-inflammatory diet. Consider adding more anti-inflammatory foods like leafy greens and berries.";
+    feedbackElement.style.color = "#ff4444";
+  } else {
+    totalElement.style.color = "#4CAF50";
+    feedbackElement.textContent =
+      "Anti-inflammatory diet! Keep up the good work with healthy food choices.";
+    feedbackElement.style.color = "#4CAF50";
+  }
+}
+
+async function deleteEntry(entryId) {
+  if (!confirm("Are you sure you want to delete this entry?")) return;
+
+  try {
+    const response = await fetch(`/delete_entry/${entryId}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to delete entry");
+    }
+
+    // Refresh all data
+    loadDailyData();
+    loadWeeklyData();
+  } catch (error) {
+    console.error("Delete error:", error);
+    alert("Failed to delete entry");
+  }
+}
+
+// Load Daily Data Function
 async function loadDailyData() {
   try {
     const response = await fetch("/daily_data");
@@ -151,14 +196,24 @@ async function loadDailyData() {
     diaryTable.innerHTML = "";
 
     data.forEach((item) => {
+      // item[0]: id, item[1]: food_name, item[2]: quantity, item[3]: dii_score
       const row = document.createElement("tr");
       row.innerHTML = `
-                <td>${item[0]}</td>
-                <td>${item[1]}g</td>
-                <td>${item[2].toFixed(2)}</td>
+                <td>${item[1]}</td>
+                <td>${item[2]}</td>
+                <td>${parseFloat(item[3]).toFixed(2)}</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteEntry(${
+                      item[0]
+                    })">
+                        Delete
+                    </button>
+                </td>
             `;
       diaryTable.appendChild(row);
     });
+
+    updateTotalScore(); // Update the total score display
   } catch (error) {
     console.error("Daily data error:", error);
     alert("Failed to load daily entries");
