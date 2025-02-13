@@ -145,6 +145,60 @@ def update_daily_score(user_id, score):
         conn.commit()
 
 # --- Routes ---
+@app.route('/entry_breakdown/<int:entry_id>', methods=['GET'])
+def entry_breakdown(entry_id):
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        # Get food entry details
+        cursor.execute("""
+            SELECT food_name, quantity, dii_score 
+            FROM food_log 
+            WHERE id = ? AND user_id = ?
+        """, (entry_id, session['user_id']))
+        entry = cursor.fetchone()
+        
+        if not entry:
+            return jsonify({"error": "Entry not found"}), 404
+
+        # Add debug print
+        print(f"Entry found: {entry}")
+
+        # Recalculate breakdown using original calculation logic
+        nutrient_data = fetch_nutrient_data(entry[0])
+        if not nutrient_data:
+            return jsonify({"error": "Current nutrient data unavailable"}), 404
+            
+        print(f"Nutrient data: {nutrient_data}")  # Debug print
+        
+        dii_score, breakdown = calculate_dii_score(nutrient_data, entry[1])
+        
+        print(f"Calculated breakdown: {breakdown}")  # Debug print
+        
+        response_data = {
+            "food_name": entry[0],
+            "quantity": entry[1],
+            "dii_score": entry[2],
+            "breakdown": breakdown if breakdown else []
+        }
+        
+        print(f"Sending response: {response_data}")  # Debug print
+        
+        return jsonify(response_data)
+        
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        return jsonify({"error": "Database error"}), 500
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
+
+
 @app.route('/delete_entry/<int:entry_id>', methods=['DELETE'])
 def delete_entry(entry_id):
     if 'user_id' not in session:
@@ -348,6 +402,7 @@ def daily_data():
             SELECT id, food_name, quantity, dii_score 
             FROM food_log 
             WHERE user_id = ? AND date = ?
+            ORDER BY id DESC
         """, (user_id, today))
         data = cursor.fetchall()
         conn.close()
@@ -356,6 +411,8 @@ def daily_data():
     except sqlite3.Error as e:
         print(f"Database error: {e}")
         return jsonify({"error": "Database error"}), 500
+    finally:
+        conn.close()
 
 @app.route('/weekly_data')
 def weekly_data():

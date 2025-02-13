@@ -152,7 +152,11 @@ function updateTotalScore() {
 
   totalElement.textContent = total.toFixed(2);
 
-  if (total > 0) {
+  if (total == 0) {
+   
+    feedbackElement.textContent = "";
+   
+  } else if (total > 0) {
     totalElement.style.color = "#ff4444";
     feedbackElement.textContent =
       "Pro-inflammatory diet. Consider adding more anti-inflammatory foods like leafy greens and berries.";
@@ -196,24 +200,24 @@ async function loadDailyData() {
     diaryTable.innerHTML = "";
 
     data.forEach((item) => {
-      // item[0]: id, item[1]: food_name, item[2]: quantity, item[3]: dii_score
+      const [id, foodName, quantity, diiScore] = item;
       const row = document.createElement("tr");
       row.innerHTML = `
-                <td>${item[1]}</td>
-                <td>${item[2]}</td>
-                <td>${parseFloat(item[3]).toFixed(2)}</td>
+                <td>${foodName}</td>
+                <td>${quantity}g</td>
+                <td>${diiScore.toFixed(2)}</td>
                 <td>
-                    <button class="delete-btn" onclick="deleteEntry(${
-                      item[0]
-                    })">
+                    <button class="btn breakdown-btn" data-entry-id="${id}" onclick="showBreakdown(${id})">
+                        View Breakdown
+                    </button>
+                    <button class="btn delete-btn" data-entry-id="${id}" onclick="deleteEntry(${id})">
                         Delete
                     </button>
                 </td>
             `;
       diaryTable.appendChild(row);
     });
-
-    updateTotalScore(); // Update the total score display
+    updateTotalScore();
   } catch (error) {
     console.error("Daily data error:", error);
     alert("Failed to load daily entries");
@@ -234,6 +238,61 @@ async function loadWeeklyData() {
   } catch (error) {
     console.error("Weekly data error:", error);
     alert("Failed to load weekly trend");
+  }
+}
+
+async function showBreakdown(entryId) {
+  const id = Math.abs(parseInt(entryId));
+  try {
+    const response = await fetch(`/entry_breakdown/${id}`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to load breakdown");
+    }
+
+    const data = await response.json();
+    console.log("Breakdown data:", data);
+
+    // Format breakdown data
+    const breakdownHTML = data.breakdown
+      ?.map((nutrient) => {
+        console.log("Nutrient:", nutrient); // Log each nutrient
+        return `
+                <div class="breakdown-item">
+                    <span class="nutrient-name">${
+                      nutrient.nutrient_name || "Unknown"
+                    }:</span>
+                    <span class="nutrient-value">
+                        ${(nutrient.adjusted_amount || 0).toFixed(2)} × 
+                        ${(nutrient.dii_score_per_unit || 0).toFixed(4)} = 
+                        ${(nutrient.nutrient_dii_score || 0).toFixed(2)}
+                    </span>
+                </div>
+            `;
+      })
+      .join("");
+
+    // Show modal
+    const modal = document.createElement("div");
+    modal.className = "breakdown-modal";
+    modal.innerHTML = `
+            <div class="modal-content">
+        <h3>Score Breakdown for: ${data.food_name || "Unknown Food"}</h3>
+        <p>(quantity/portion * DII score/parameter)</p>
+                <div class="breakdown-list">
+                    ${breakdownHTML || "No breakdown available"}
+                </div>
+                <div class="total-score">
+                    Total Score: ${(data.dii_score || 0).toFixed(2)}
+                </div>
+                <button onclick="this.closest('.breakdown-modal').remove()">Close</button>
+            </div>
+        `;
+    document.body.appendChild(modal);
+  } catch (error) {
+    console.error("Breakdown error:", error);
+    console.log("Full error details:", error.message); // Log detailed error
+    alert(error.message || "Failed to load breakdown details");
   }
 }
 
