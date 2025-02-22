@@ -38,12 +38,12 @@ body {
   gap: 40px;
 }
 
-/* Food Search Section */
+/* Search Section */
 .search-section {
-  background-color: #ffffff;
-  border-radius: 8px;
+  background-color: #fff;
   padding: 20px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .search-section h2 {
@@ -74,56 +74,59 @@ body {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .search-container button:hover {
   background-color: #eab81f;
 }
 
-/* Updated Total Score Section */
-.total-score-section {
-  background-color: #ffffff;
+/* Finalize Daily Log Section */
+.finalize-section {
+  background-color: #fff;
+  padding: 20px;
   border-radius: 8px;
-  padding: 20px 15px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.finalize-section button {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s;
+}
+
+.finalize-section button:hover {
+  background-color: #43a047;
+}
+
+#dailyDiiScoreDisplay {
+  margin-top: 10px;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+/* Total Score Section (if needed) */
+.total-score-section {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
   text-align: center;
   margin: 10px 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.total-score-section h3 {
-  margin-bottom: 15px;
-  color: #2e3a59;
-}
-
-.score-circle {
-  width: 180px;
-  height: 180px;
-  margin: 0 auto 10px;
-  background-color: #f4c430;
-  color: #2e3a59;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 2.5em;
-  font-weight: bold;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* Feedback Message */
-.feedback-message {
-  font-size: 1.1em;
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 4px;
-}
-
-/* Food Diary Section */
+/* Diary Section */
 .diary-section {
-  background-color: #ffffff;
-  border-radius: 8px;
+  background-color: #fff;
   padding: 20px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .diary-section h2 {
@@ -138,7 +141,7 @@ body {
 
 .diary-table th {
   background-color: #2e3a59;
-  color: #ffffff;
+  color: #fff;
   padding: 10px;
 }
 
@@ -150,19 +153,15 @@ body {
 
 /* Graph Section */
 .graph-section {
-  background-color: #ffffff;
-  border-radius: 8px;
+  background-color: #fff;
   padding: 20px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .graph-section h2 {
   color: #2e3a59;
   margin-bottom: 20px;
-}
-
-canvas {
-  max-width: 100%;
 }
 
 /* Suggestions List */
@@ -188,121 +187,7 @@ canvas {
   color: #fff;
 }
 
-/* Login Section (if used) */
-.login-section {
-  background-color: #ffffff;
-  border-radius: 8px;
-  padding: 20px;
-  margin: 20px auto;
-  max-width: 400px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.login-section form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.login-section input {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.login-section button {
-  padding: 10px;
-  background-color: #2e3a59;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-/* Logout Button */
-#logoutBtn {
-  padding: 10px 20px;
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  float: right;
-  margin: 20px 0;
-}
-
-/* Delete Button */
-.delete-btn {
-  background-color: #ff4444;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.delete-btn:hover {
-  background-color: #cc0000;
-}
-
 /* Breakdown Modal */
-.breakdown-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  max-width: 600px;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-.breakdown-list {
-  margin: 1rem 0;
-}
-
-.breakdown-item {
-  display: flex;
-  justify-content: space-between;
-  margin: 0.5rem 0;
-  padding: 0.5rem;
-  background: #f8f9fa;
-  border-radius: 4px;
-}
-
-.nutrient-name {
-  font-weight: bold;
-  color: #2e3a59;
-}
-
-.nutrient-value {
-  color: #6c7a96;
-}
-
-.total-score {
-  text-align: right;
-  font-weight: bold;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #ddd;
-}
-
-/* Button spacing */
-.btn {
-  margin: 0 0.3rem;
-}
 .breakdown-modal {
   position: fixed;
   top: 0;
@@ -317,7 +202,7 @@ canvas {
 }
 
 .modal-content {
-  background-color: white;
+  background-color: #fff;
   padding: 20px;
   border-radius: 8px;
   max-width: 500px;
@@ -327,6 +212,8 @@ canvas {
 }
 
 .breakdown-item {
+  display: flex;
+  justify-content: space-between;
   margin: 10px 0;
   padding: 5px;
   border-bottom: 1px solid #eee;
@@ -334,11 +221,383 @@ canvas {
 
 .nutrient-name {
   font-weight: bold;
-  margin-right: 10px;
+  color: #2e3a59;
 }
 
-.total-score {
-  margin-top: 20px;
+.nutrient-value {
+  color: #6c7a96;
+}
+
+/* Buttons */
+.btn {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0 0.3rem;
+  transition: background-color 0.3s;
+}
+
+.breakdown-btn {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+.breakdown-btn:hover {
+  background-color: #43a047;
+}
+
+.delete-btn {
+  background-color: #ff4444;
+  color: #fff;
+}
+
+.delete-btn:hover {
+  background-color: #cc0000;
+}
+
+/* Logout Button */
+#logoutBtn {
+  padding: 10px 20px;
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  float: right;
+  margin: 20px 0;
+}
+
+/* Finalize Panel in Diary Section */
+.diary-container {
+  display: flex;
+  gap: 20px;
+}
+
+.diary-table-container {
+  flex: 2;
+}
+
+.finalize-panel {
+  flex: 1;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Score Display Styling */
+.score-display {
+  font-size: 2em;
   font-weight: bold;
+  margin: 10px 0;
+}
+
+/* Feedback Message Styling */
+.feedback-message {
   font-size: 1.1em;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+/* Finalize Button (placed below the diary container) */
+.finalize-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s;
+}
+
+.finalize-btn:hover {
+  background-color: #43a047;
+}
+
+/* Visual styling for daily score display */
+.score-display {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+/* Classes to indicate inflammatory status */
+.pro-inflammatory {
+  color: #ff4444;
+  background-color: #ffe6e6;
+}
+
+.anti-inflammatory {
+  color: #4caf50;
+  background-color: #e6ffe6;
+}
+
+/* Finalize panel additional styling */
+.finalize-panel h3 {
+  margin-bottom: 15px;
+  color: #2e3a59;
+}
+/* Portion Guide Modal */
+.portion-guide-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.portion-guide-modal .modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.guide-section {
+  margin-bottom: 20px;
+}
+
+.guide-section h4 {
+  margin-bottom: 10px;
+  color: #2e3a59;
+}
+
+.guide-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+
+.guide-table th {
+  background-color: #2e3a59;
+  color: #fff;
+  padding: 8px;
+  text-align: left;
+}
+
+.guide-table td {
+  padding: 8px;
+  border: 1px solid #ddd;
+}
+
+.source-note {
+  text-align: right;
+  font-size: 0.8em;
+  color: #777;
+  margin-top: 10px;
+}
+
+.close-btn {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  float: right;
+  margin-top: 10px;
+}
+
+.close-btn:hover {
+  background-color: #c82333;
+}
+/* Portion Guide Modal */
+.portion-guide-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.portion-guide-modal .modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.guide-section {
+  margin-bottom: 20px;
+}
+
+.guide-section h4 {
+  margin-bottom: 10px;
+  color: #2e3a59;
+}
+
+.guide-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+
+.guide-table th {
+  background-color: #2e3a59;
+  color: #fff;
+  padding: 8px;
+  text-align: left;
+}
+
+.guide-table td {
+  padding: 8px;
+  border: 1px solid #ddd;
+}
+
+.source-note {
+  text-align: right;
+  font-size: 0.8em;
+  color: #777;
+  margin-top: 10px;
+}
+
+.close-btn {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  float: right;
+  margin-top: 10px;
+}
+
+.close-btn:hover {
+  background-color: #c82333;
+}
+
+/* Style for the portion guide link */
+.portion-guide-link {
+  font-size: 0.9em;
+  margin-left: 15px;
+  color: #4caf50;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.breakdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.breakdown-table th,
+.breakdown-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.breakdown-table th {
+  background-color: #f0f0f0;
+}
+
+/* Optional: Style for the explanation text */
+.breakdown-explanation {
+  font-size: 0.9em;
+  color: #555;
+  margin-top: 10px;
+}
+/* Portion Guide Modal */
+.portion-guide-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.portion-guide-modal .modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.guide-section {
+  margin-bottom: 20px;
+}
+
+.guide-section h4 {
+  margin-bottom: 10px;
+  color: #2e3a59;
+}
+
+.guide-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+
+.guide-table th,
+.guide-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.guide-table th {
+  background-color: #2e3a59;
+  color: #fff;
+}
+
+.source-note {
+  text-align: right;
+  font-size: 0.8em;
+  color: #777;
+  margin-top: 10px;
+}
+
+.close-btn {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  float: right;
+  margin-top: 10px;
+}
+
+.close-btn:hover {
+  background-color: #c82333;
+}
+
+/* Style for the portion guide link */
+.portion-guide-link {
+  font-size: 0.9em;
+  margin-left: 15px;
+  color: #4caf50;
+  cursor: pointer;
+  text-decoration: underline;
 }
