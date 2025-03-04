@@ -28,14 +28,26 @@
               type="text"
               placeholder="Search for food..."
               autocomplete="off"
+              title="Type the name of the food item you consumed. For example, 'Apple, raw'."
             />
+            <span
+              class="tooltip-icon"
+              title="Type the name of the food item you consumed."
+              >?</span
+            >
             <ul id="foodSuggestions" class="suggestions-list"></ul>
             <input
               id="foodQuantity"
               type="number"
               placeholder="Quantity (g)"
               min="1"
+              title="Enter the amount of food you consumed (in grams). For example, 100."
             />
+            <span
+              class="tooltip-icon"
+              title="Enter the amount of food you consumed, in grams."
+              >?</span
+            >
             <button id="addFoodBtn" disabled>Add to Diary</button>
             <!-- NEW: Small clickable text for portion guide -->
             <span class="portion-guide-link" id="viewPortionGuideLink"
@@ -69,15 +81,32 @@
               style="display: none"
             >
               <h3>Daily Inflammatory Score</h3>
+              <div id="diiGaugeContainer">
+                <div id="diiGauge"></div>
+                <div id="gaugeLabels">
+                  <span class="gauge-label">Anti-inflammatory</span>
+                  <span class="gauge-label">Neutral</span>
+                  <span class="gauge-label">Pro-inflammatory</span>
+                </div>
+              </div>
               <div id="dailyDiiScoreDisplay" class="score-display"></div>
-              <button id="viewBreakdownBtn" class="btn">
-                View Score Breakdown
+
+              <button
+                id="viewBreakdownBtn"
+                class="btn"
+                title="View detailed nutrient breakdown"
+              >
+                View Calculation Breakdown
               </button>
               <div id="scoreFeedback" class="feedback-message"></div>
             </div>
           </div>
           <!-- Finalize Daily Log Button -->
-          <button id="confirmDayBtn" class="finalize-btn">
+          <button
+            id="confirmDayBtn"
+            class="finalize-btn"
+            title="Finalize your daily food log to calculate the overall DII score"
+          >
             Finalize Daily Log
           </button>
         </section>
@@ -99,6 +128,31 @@
         <button id="logoutBtn">Logout</button>
       </main>
     </div>
+    <!-- Onboarding Modal -->
+    <div id="onboardingModal" class="onboarding-modal" style="display: none">
+      <div class="modal-content">
+        <h2>Welcome to DII Inflammation Tracker</h2>
+        <p>
+          This application helps you track your diet's inflammatory potential by
+          logging your meals and calculating a daily score.
+        </p>
+        <ol>
+          <li>Use the search bar to find food items you have consumed.</li>
+          <li>
+            Enter the quantity (in grams) and add the entry to your diary.
+          </li>
+          <li>
+            Once you're done, finalize your daily log to see your overall
+            Inflammation score and nutrient breakdown.
+          </li>
+          <li>
+            You can also view the portion guide for help with serving sizes.
+          </li>
+        </ol>
+        <button id="onboardingCloseBtn" class="btn">Got it!</button>
+      </div>
+    </div>
+
     <script src="static/dashboard.js"></script>
   </body>
 </html>

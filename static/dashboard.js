@@ -16,12 +16,42 @@ document.addEventListener("DOMContentLoaded", () => {
     viewBreakdownBtn.addEventListener("click", showDailyBreakdown);
   }
 
-  // NEW: Attach the Portion Guide link handler (small text next to log your meals)
+  // Attach the Portion Guide link handler
   const portionGuideLink = document.getElementById("viewPortionGuideLink");
   if (portionGuideLink) {
     portionGuideLink.addEventListener("click", (e) => {
       e.preventDefault();
       showPortionGuide();
+    });
+  }
+
+  // Attach event listeners for Add Food and Logout buttons
+  const addFoodBtn = document.getElementById("addFoodBtn");
+  if (addFoodBtn) {
+    addFoodBtn.addEventListener("click", addFoodToDiary);
+  }
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", logout);
+  }
+  const foodSearch = document.getElementById("foodSearch");
+  if (foodSearch) {
+    foodSearch.addEventListener("input", handleFoodSearch);
+  }
+  const foodSuggestions = document.getElementById("foodSuggestions");
+  if (foodSuggestions) {
+    foodSuggestions.addEventListener("click", handleSuggestionClick);
+  }
+
+  // Always display the onboarding modal on page load
+  const onboardingModal = document.getElementById("onboardingModal");
+  onboardingModal.style.display = "flex"; // Show the modal using flex
+
+  // Onboarding modal close button handler (modal will appear again on reload)
+  const onboardingCloseBtn = document.getElementById("onboardingCloseBtn");
+  if (onboardingCloseBtn) {
+    onboardingCloseBtn.addEventListener("click", () => {
+      onboardingModal.style.display = "none";
     });
   }
 });
@@ -259,10 +289,33 @@ async function confirmDay() {
     if (!response.ok) throw new Error("Failed to finalize daily log");
     const data = await response.json();
     const scoreEl = document.getElementById("dailyDiiScoreDisplay");
-    scoreEl.textContent =
-      "Overall DII Score: " + data.daily_dii_score.toFixed(2);
+    const diiScore = data.daily_dii_score;
+    scoreEl.textContent = "Overall DII Score: " + diiScore.toFixed(2);
+
+    // Update the dynamic gauge (assuming a fixed range of -10 to +10)
+    const gauge = document.getElementById("diiGauge");
+    // Clamp the score between -10 and 10 for display purposes
+    let normalizedScore = Math.max(-10, Math.min(10, diiScore));
+    // Convert the score to a percentage (0% for -10, 100% for 10)
+    let percentage = ((normalizedScore + 10) / 20) * 100;
+    gauge.style.width = percentage + "%";
+
+    // Set gauge color based on thresholds
+    let gaugeColor = "#FFD700"; // Default yellow for neutral scores
+    if (normalizedScore > 5) {
+      gaugeColor = "#ff4444"; // Red for high pro-inflammatory scores
+    } else if (normalizedScore > 0) {
+      gaugeColor = "#FFA500"; // Orange for moderate pro-inflammatory scores
+    } else if (normalizedScore < -5) {
+      gaugeColor = "#4caf50"; // Green for high anti-inflammatory scores
+    } else if (normalizedScore < 0) {
+      gaugeColor = "#8BC34A"; // Light green for moderate anti-inflammatory scores
+    }
+    gauge.style.backgroundColor = gaugeColor;
+
+    // Prepare feedback text (preserving previous wording)
     let feedbackHTML = "";
-    if (data.daily_dii_score > 0) {
+    if (diiScore > 0) {
       scoreEl.classList.remove("anti-inflammatory");
       scoreEl.classList.add("pro-inflammatory");
       feedbackHTML = `
@@ -282,7 +335,7 @@ async function confirmDay() {
              </a>
           </p>
         `;
-    } else if (data.daily_dii_score < 0) {
+    } else if (diiScore < 0) {
       scoreEl.classList.remove("pro-inflammatory");
       scoreEl.classList.add("anti-inflammatory");
       feedbackHTML = `
@@ -299,7 +352,7 @@ async function confirmDay() {
           <p>For further ideas, please refer to 
              <a href="https://www.healthline.com/nutrition/anti-inflammatory-diet-101" target="_blank">
                Healthline's Anti-Inflammatory Diet Guide
-             </a>.
+             </a>
           </p>
         `;
     } else {
@@ -307,8 +360,13 @@ async function confirmDay() {
       feedbackHTML = `<p>Your overall diet is neutral. Consider small adjustments, such as adding more fruits and vegetables, to further enhance its anti-inflammatory benefits.</p>`;
     }
     document.getElementById("scoreFeedback").innerHTML = feedbackHTML;
+
+    // Store the daily breakdown for later use (for the detailed breakdown view)
     window["dailyBreakdown"] = data.breakdown;
-    finalizePanel.style.display = "block";
+    // Make the finalize panel visible
+    document.getElementById("finalizePanel").style.display = "block";
+
+    // Update the weekly trend chart with the new data
     loadWeeklyData();
   } catch (error) {
     console.error("Confirm day error:", error);
@@ -316,7 +374,6 @@ async function confirmDay() {
   }
 }
 
-// Event handler for "View Score Breakdown" button in the finalize panel.
 function showDailyBreakdown() {
   if (!window["dailyBreakdown"] || window["dailyBreakdown"].length === 0) {
     alert(
@@ -324,6 +381,16 @@ function showDailyBreakdown() {
     );
     return;
   }
+
+  // Explanation text for the breakdown modal
+  let explanationText = `
+    <p class="breakdown-explanation">
+      <strong>Explanation:</strong> "Your Intake" is the total amount of the nutrient consumed today.
+      "Recommended Mean" and "Std Dev" are the population reference values.
+      The "Z Score" shows how far your intake deviates from the mean,
+      "Weight" is the nutrient's inflammatory factor, and "Score Contribution" is the product of the Z Score and the Weight.
+    </p>
+  `;
 
   let tableHTML = `
     <table class="breakdown-table">
@@ -366,27 +433,71 @@ function showDailyBreakdown() {
     </table>
   `;
 
-  const explanationHTML = `
-    <p class="breakdown-explanation">
-      <strong>Explanation:</strong> "Your Intake" is the total amount of the nutrient consumed today.
-      "Recommended Mean" and "Std Dev" are the population reference values.
-      The "Z Score" shows how far your intake deviates from the mean,
-      "Weight" is the nutrient's inflammatory factor, and "Score Contribution" is the product of the Z Score and the Weight.
-    </p>
-  `;
-
   const modal = document.createElement("div");
   modal.className = "breakdown-modal";
   modal.innerHTML = `
     <div class="modal-content">
       <h3>Daily Score Breakdown</h3>
+      ${explanationText}
       ${tableHTML}
-      ${explanationHTML}
       <button class="btn close-btn" onclick="this.closest('.breakdown-modal').remove()">Close</button>
     </div>
   `;
 
   document.body.appendChild(modal);
+}
+
+// Event handler for "View Score Breakdown" button in the finalize panel.
+async function showBreakdown(entryId) {
+  const id = Math.abs(parseInt(entryId));
+  try {
+    const response = await fetch(`/entry_breakdown/${id}`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to load breakdown");
+    }
+    const data = await response.json();
+
+    // Explanation text for individual food breakdown
+    let explanationText = `
+      <p class="breakdown-explanation">
+        This breakdown provides the nutrients fetched for the logged food that contribute to the final daily inflammation score calculation,
+        along with the inflammatory effect for each nutrient.
+      </p>
+    `;
+
+    const breakdownHTML = data.breakdown
+      ?.map((nutrient) => {
+        return `
+          <div class="breakdown-item">
+            <span class="nutrient-name">${
+              nutrient.nutrient_name || "Unknown"
+            }</span>:
+            <span class="nutrient-value">Inflammatory effect: ${nutrient.dii_score_per_unit.toFixed(
+              4
+            )}</span>
+          </div>
+        `;
+      })
+      .join("");
+
+    const modal = document.createElement("div");
+    modal.className = "breakdown-modal";
+    modal.innerHTML = `
+      <div class="modal-content">
+        <h3>Nutrient Breakdown for: ${data.food_name || "Unknown Food"}</h3>
+        ${explanationText}
+        <div class="breakdown-list">${
+          breakdownHTML || "No breakdown available"
+        }</div>
+        <button class="btn close-btn" onclick="this.closest('.breakdown-modal').remove()">Close</button>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  } catch (error) {
+    console.error("Breakdown error:", error);
+    alert(error.message || "Failed to load breakdown details");
+  }
 }
 
 // Load Daily Data Function: Loads today's logged foods.
@@ -444,6 +555,15 @@ async function showBreakdown(entryId) {
       throw new Error(errorData.error || "Failed to load breakdown");
     }
     const data = await response.json();
+
+    // Explanation text for individual food breakdown
+    let explanationText = `
+      <p class="breakdown-explanation">
+        This breakdown provides the nutrients fetched for the logged food that contribute to the final daily inflammation score calculation,
+        along with the inflammatory effect for each nutrient.
+      </p>
+    `;
+
     const breakdownHTML = data.breakdown
       ?.map((nutrient) => {
         return `
@@ -458,15 +578,17 @@ async function showBreakdown(entryId) {
         `;
       })
       .join("");
+
     const modal = document.createElement("div");
     modal.className = "breakdown-modal";
     modal.innerHTML = `
       <div class="modal-content">
         <h3>Nutrient Breakdown for: ${data.food_name || "Unknown Food"}</h3>
+        ${explanationText}
         <div class="breakdown-list">${
           breakdownHTML || "No breakdown available"
         }</div>
-        <button onclick="this.closest('.breakdown-modal').remove()">Close</button>
+        <button class="btn close-btn" onclick="this.closest('.breakdown-modal').remove()">Close</button>
       </div>
     `;
     document.body.appendChild(modal);
