@@ -77,7 +77,7 @@ function initializeChart() {
   scoreChart = new Chart(ctx, {
     type: "line",
     data: {
-      labels: [], // Dates will be filled in from your weekly data
+      labels: [],
       datasets: [
         {
           label: "Weekly Inflammation Trend",

@@ -1,3 +1,4 @@
+import re
 from flask import Flask, request, jsonify, render_template, redirect, url_for, session
 import sqlite3
 import os
@@ -18,64 +19,51 @@ db_path = r'C:\Users\aahme\OneDrive\Documents\GitHub\Final-Year-Project\dii_tool
 USDA_API_URL = "https://api.nal.usda.gov/fdc/v1/foods/search"
 USDA_API_KEY = "sns0HxXgofxkqaeFcYRUpPzxcxoN7wy62Mf2Aq85"
 
-# --- Database Initialization (Run once) ---
-def init_db():
-    with sqlite3.connect(db_path) as conn:
-        cursor = conn.cursor()
-        cursor.executescript("""
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT UNIQUE NOT NULL,
-                password TEXT NOT NULL
-            );
-            CREATE TABLE IF NOT EXISTS daily_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                date TEXT NOT NULL,
-                total_dii_score REAL DEFAULT 0,
-                FOREIGN KEY(user_id) REFERENCES users(id),
-                UNIQUE(user_id, date)
-            );
-            CREATE TABLE IF NOT EXISTS food_log (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                date TEXT NOT NULL,
-                food_name TEXT NOT NULL,
-                quantity REAL NOT NULL,
-                dii_score REAL NOT NULL,
-                FOREIGN KEY(user_id) REFERENCES users(id)
-            );
-        """)
-        conn.commit()
-
-# Uncomment to initialize the database
-# init_db()
-
 def fetch_nutrient_data(food_name):
     """
     Fetch nutrient data for a food item using the USDA API.
     Filters for Foundation Foods and sorts by relevance.
+    Returns nutrient data only if a relevant match is found; otherwise, returns None.
     """
     try:
+        # Remove leading/trailing whitespace from the food name.
+        clean_food_name = food_name.strip()
         params = {
-            "query": food_name,
-            "pageSize": 1,
+            "query": clean_food_name,
+            "pageSize": 10,  # Retrieve multiple results
             "type": "Foundation",  # Filter for Foundation Foods
             "sortBy": "score",
-            "sortOrder": "desc",
+            "sortOrder": "desc",  # Use descending order to prioritize high score results
             "api_key": USDA_API_KEY
         }
         response = requests.get(USDA_API_URL, params=params)
         response.raise_for_status()
         data = response.json()
         if "foods" in data and len(data["foods"]) > 0:
-            return data["foods"][0]["foodNutrients"]
+            # Filter results to include only those with the query as a substring (case-insensitive)
+            filtered_foods = [
+                food for food in data["foods"]
+                if clean_food_name.lower() in food.get("description", "").lower()
+            ]
+            # If no relevant results are found, return None.
+            if not filtered_foods:
+                print(f"No relevant foods found for query: {clean_food_name}")
+                return None
+            else:
+                # Sort filtered results based on the index of the query in the description.
+                # Foods where the query appears earlier are considered more relevant.
+                filtered_foods.sort(key=lambda food: food.get("description", "").lower().find(clean_food_name.lower()))
+                selected_food = filtered_foods[0]
+                print(f"Selected food for query '{clean_food_name}': {selected_food.get('description', 'N/A')}")
+                return selected_food["foodNutrients"]
         else:
+            print("No foods found in API response.")
             return None
     except requests.RequestException as e:
         print(f"Error fetching nutrient data: {e}")
         return None
 
+    
 def calculate_food_breakdown(nutrient_data, quantity):
     """
     Generate a nutrient breakdown for a food entry.
@@ -425,27 +413,41 @@ def calculate():
         "dii_score": dii_score,
         "breakdown": breakdown
     })
+import re  # Ensure re is imported at the top of your file if not already
 
 @app.route('/usda-proxy')
 def usda_proxy():
     query = request.args.get('query')
     if not query:
         return jsonify({"error": "Query parameter is required"}), 400
+    # Remove extra whitespace from the query.
+    clean_query = query.strip()
     try:
         params = {
-            "query": query,
+            "query": clean_query,
             "pageSize": 10,
             "type": "Foundation",  # Filter for Foundation Foods
             "sortBy": "score",
-            "sortOrder": "desc",
+            "sortOrder": "desc",  # Use descending order for higher relevance
             "api_key": USDA_API_KEY
         }
         response = requests.get(USDA_API_URL, params=params)
         response.raise_for_status()
-        return jsonify(response.json())
+        data = response.json()
+        if "foods" in data and len(data["foods"]) > 0:
+            # Filter for results that contain the query (case-insensitive)
+            filtered_foods = [
+                food for food in data["foods"]
+                if clean_query.lower() in food.get("description", "").lower()
+            ]
+            # Sort filtered foods by the index of the query in the description
+            filtered_foods.sort(key=lambda food: food.get("description", "").lower().find(clean_query.lower()))
+            data["foods"] = filtered_foods
+        return jsonify(data)
     except requests.RequestException as e:
         print(f"USDA API error: {e}")
         return jsonify({"error": "Failed to fetch food data"}), 500
+
 
 @app.route('/daily_data')
 def daily_data():
